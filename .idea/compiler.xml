@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Maven default annotation processors profile" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <module name="customer" />
+        <module name="account" />
+        <module name="order" />
+        <module name="catalog" />
+      </profile>
+    </annotationProcessing>
+    <bytecodeTargetLevel>
+      <module name="account" target="1.8" />
+      <module name="catalog" target="1.8" />
+      <module name="cqrs-parent-pom" target="1.8" />
+      <module name="customer" target="1.8" />
+      <module name="order" target="1.8" />
+    </bytecodeTargetLevel>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="account" options="-parameters" />
+      <module name="catalog" options="-parameters" />
+      <module name="customer" options="-parameters" />
+      <module name="order" options="-parameters" />
+    </option>
+  </component>
+</project>
