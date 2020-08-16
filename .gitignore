@@ -29,7 +29,8 @@ target/
 *.iml
 *.iws
 *.ipr
-.idea/
+.idea
+.mvn
 
 # eclipse project file
 .settings/
