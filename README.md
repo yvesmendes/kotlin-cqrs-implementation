@@ -1,7 +1,7 @@
 # CQRS Example with Kotlin
 
 ## 1 - Full CQRS without Kafka
-
+![alt cqrs-full-without-kafka](https://github.com/yvesmendes/kotlin-cqrs-implementation/blob/master/media/full-cqrs-without-kafka.png)
 
 ### 1.1 RUN
 ```
@@ -90,5 +90,6 @@ curl -X GET \
   http://localhost:8083/v1/orders/18ee920a-6f68-4abd-a8e1-77f0909d3f6f \
   -H 'Content-Type: application/json' \
   -H 'cache-control: no-cache'
-
-## 2 - 
+```
+## 2 
+## 3
