@@ -92,6 +92,7 @@ curl -X GET \
   -H 'cache-control: no-cache'
 ```
 ## 2 CQRS With Legacy System
+![alt without-kafka](https://github.com/yvesmendes/kotlin-cqrs-implementation/blob/master/media/without-kafka.png)
 ### 2.1 RUN
 ```
 Just enter the legacy-system-without-kafka folder
