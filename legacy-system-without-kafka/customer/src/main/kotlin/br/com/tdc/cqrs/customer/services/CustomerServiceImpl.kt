@@ -1,0 +1,49 @@
+package br.com.tdc.cqrs.customer.services
+
+import br.com.tdc.cqrs.customer.client.AccountFeignClient
+import br.com.tdc.cqrs.customer.domain.Customer
+import br.com.tdc.cqrs.customer.dto.AccountDTO
+import br.com.tdc.cqrs.customer.dto.AccountRequestDTO
+import br.com.tdc.cqrs.customer.dto.CustomerDTO
+import br.com.tdc.cqrs.customer.dto.CustomerResponseDTO
+import br.com.tdc.cqrs.customer.exceptions.NotFoundException
+import br.com.tdc.cqrs.customer.repository.CustomerRepository
+import org.springframework.stereotype.Service
+import java.math.BigDecimal
+
+@Service
+class CustomerServiceImpl(private val customerRepository : CustomerRepository,
+                          private val accountFeignClient: AccountFeignClient) : CustomerService {
+    override fun updateCustomer(customer: Customer) {
+        val customerPersisted = customerRepository.findById(customer.id).orElseThrow { NotFoundException() }
+        customerPersisted.email = customer.email
+        customerPersisted.password = customer.password
+        customerRepository.save(customerPersisted)
+    }
+
+    override fun getById(id: Long): CustomerResponseDTO {
+        val customer = customerRepository.findById(id).orElseThrow { NotFoundException() }
+        val account = accountFeignClient.getByCustomerId(customer.id)
+        val accountDTO = AccountDTO(accountNumber = account.accountNumber, balance = account.balance)
+        return CustomerResponseDTO(id=customer.id, mail = customer.email, name = customer.name, account = accountDTO)
+    }
+
+    override fun deleteById(id: Long) {
+        val customer = customerRepository.findById(id).orElseThrow { NotFoundException() }
+        accountFeignClient.deleteAccount(AccountRequestDTO(customerId = customer.id, balance = BigDecimal.ZERO))
+        customerRepository.delete(customer)
+    }
+
+    override fun saveCustomer(customerDTO: CustomerDTO): CustomerResponseDTO {
+        val customer = Customer(name = customerDTO.name, email = customerDTO.mail, password = customerDTO.password)
+        val persistedCustomer = customerRepository.save(customer)
+
+        val account = AccountRequestDTO(customerId = persistedCustomer.id, balance = BigDecimal.ZERO)
+                    val createdAccount = accountFeignClient.createAccount(account)
+        val accountDTO = AccountDTO(accountNumber = createdAccount.accountNumber, balance = createdAccount.balance)
+
+        return CustomerResponseDTO(id=persistedCustomer.id, name = persistedCustomer.name,
+                mail = persistedCustomer.email, account = accountDTO)
+    }
+
+}
