@@ -1,0 +1,160 @@
+version: '3.7'
+services:
+  rabbitmq:
+    image: rabbitmq:3-management
+    network_mode: "bridge"    
+    container_name: rabbitmq
+    hostname: rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    network_mode: "bridge"
+    environment:
+     - RABBITMQ_ERLANG_COOKIE=This_is_my_secret_phrase
+     - RABBITMQ_DEFAULT_USER=guest
+     - RABBITMQ_DEFAULT_PASS=guest
+     - CLUSTERED=false
+  mongo:
+    image: mongo
+    network_mode: "bridge"    
+    ports:
+      - "27017:27017"
+    network_mode: "bridge"
+  redis:
+    image: redis
+    network_mode: "bridge"
+    ports:
+      - "6379:6379"    
+    network_mode: "bridge"
+  zookeeper:
+      image: debezium/zookeeper:1.2
+      network_mode: "bridge"      
+      ports:
+       - 2181:2181
+       - 2888:2888
+       - 3888:3888
+  kafka:
+    image: debezium/kafka:1.2
+    network_mode: "bridge"    
+    ports:
+     - 9092:9092
+    links:
+     - zookeeper
+    environment:
+     - ZOOKEEPER_CONNECT=zookeeper:2181
+     - ADVERTISED_LISTENERS=PLAINTEXT://192.168.15.12:9092
+  mysql:
+    image: debezium/example-mysql:1.2
+    network_mode: "bridge"    
+    ports:
+     - 3306:3306
+    environment:
+     - MYSQL_ROOT_PASSWORD=debezium
+     - MYSQL_USER=mysqluser
+     - MYSQL_PASSWORD=mysqlpw
+     - MYSQL_DATABASE=testedb
+  connect:
+    image: debezium/connect-jdbc-es:0.8
+    network_mode: "bridge"    
+    build:
+      context: debezium-jdbc
+    ports:
+     - 8083:8083
+     - 5005:5005
+    links:
+     - kafka
+     - mysql
+    environment:
+     - BOOTSTRAP_SERVERS=kafka:9092
+     - GROUP_ID=1
+     - CONFIG_STORAGE_TOPIC=my_connect_configs
+     - OFFSET_STORAGE_TOPIC=my_connect_offsets
+  accountservice:
+    image: legacy-system-with-kafka/account:0.0.1-SNAPSHOT     
+    ports:
+      - "8081:8081"
+    network_mode: "bridge"
+    environment:
+      PROFILE: "default"
+      SERVER_PORT: "8081"
+      RABBITMQ_PORT: "5672"
+      REDIS_PORT: "6379"
+      MONGO_PORT: "27017"
+      ACCOUNT_PORT: "8085"
+      KAFKA_PORT: "9092"
+    links:
+      - rabbitmq
+      - redis
+      - mongo
+      - accountlegacyservice
+      - kafka
+      - mysql
+  accountlegacyservice:
+    image: legacy-system-with-kafka/accountlegacy:0.0.1-SNAPSHOT     
+    ports:
+      - "8085:8085"
+    network_mode: "bridge"
+    environment:
+      PROFILE: "default"
+      SERVER_PORT: "8085"
+      RABBITMQ_PORT: "5672"
+      REDIS_PORT: "6379"
+      MONGO_PORT: "27017"
+      MYSQL_PORT: "3306"
+    links:
+      - rabbitmq
+      - redis
+      - mongo
+      - mysql
+      
+  catalogservice:
+    image: legacy-system-with-kafka/catalog:0.0.1-SNAPSHOT     
+    ports:
+      - "8082:8082"
+    network_mode: "bridge"
+    environment:
+      PROFILE: "default"
+      SERVER_PORT: "8082"
+      RABBITMQ_PORT: "5672"
+      REDIS_PORT: "6379"
+      MONGO_PORT: "27017"
+      CUSTOMER_PORT: "8080"
+    links:
+      - rabbitmq
+      - redis
+      - mongo 
+      - customerservice
+  customerservice:
+    image: legacy-system-with-kafka/customer:0.0.1-SNAPSHOT     
+    ports:
+      - "8080:8080"
+    network_mode: "bridge"
+    environment:
+      PROFILE: "default"
+      SERVER_PORT: "8080"
+      RABBITMQ_PORT: "5672"
+      REDIS_PORT: "6379"
+      MONGO_PORT: "27017"
+    links:
+      - rabbitmq
+      - redis
+      - mongo   
+      - accountservice       
+  orderservice:
+    image: legacy-system-with-kafka/order:0.0.1-SNAPSHOT     
+    ports:
+      - "8089:8089"
+    network_mode: "bridge"
+    environment:
+      PROFILE: "default"
+      SERVER_PORT: "8083"
+      RABBITMQ_PORT: "5672"
+      REDIS_PORT: "6379"
+      MONGO_PORT: "27017"
+      CATALOG_PORT: "8082"
+    links:
+      - rabbitmq
+      - redis
+      - mongo     
+      - catalogservice 
+      - accountservice

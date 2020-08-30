@@ -1,0 +1,115 @@
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://localhost/accounts/"
+           targetNamespace="http://localhost/accounts/" elementFormDefault="qualified">
+
+
+    <xs:element name="getAccountRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getAccountResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="account" type="tns:account"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getCustomerAccountRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="customerId" type="xs:long"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="getCustomerAccountResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="account" type="tns:account"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="deleteAccountRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="id" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="deleteAccountResponse" />
+
+
+    <xs:element name="updateBalanceRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="requestAccount" type="tns:balanceRequest"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="updateBalanceResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="account" type="tns:account"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="createAccountRequest">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="customerId" type="xs:long"/>
+                <xs:element name="accountId" type="xs:string"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+    <xs:element name="createAccountResponse">
+        <xs:complexType>
+            <xs:sequence>
+                <xs:element name="customerId" type="tns:account"/>
+            </xs:sequence>
+        </xs:complexType>
+    </xs:element>
+
+
+    <xs:complexType name="balanceRequest">
+        <xs:sequence>
+            <xs:element name="amount" type="xs:double"/>
+            <xs:element name="accountNumber" type="xs:string"/>
+            <xs:element name="customerId" type="xs:long"/>
+            <xs:element name="balanceRequestType" type="tns:balanceRequestType"/>
+        </xs:sequence>
+    </xs:complexType>
+
+
+    <xs:simpleType name="balanceRequestType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="debit"/>
+            <xs:enumeration value="credit"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+
+    <xs:complexType name="account">
+        <xs:sequence>
+            <xs:element name="accountNumber" type="xs:string"/>
+            <xs:element name="customerId" type="xs:long"/>
+            <xs:element name="balance" type="xs:double"/>
+            <xs:element name="accountStatus" type="tns:accountStatus"/>
+        </xs:sequence>
+    </xs:complexType>
+
+    <xs:simpleType name="accountStatus">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="OPEN"/>
+            <xs:enumeration value="CLOSED"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>
